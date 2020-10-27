@@ -13,6 +13,29 @@ Returns a dictionary with the options chosen for a particular simulation.
 """
 function caseoptions(Simulation)
     caseopt = @match Simulation begin
+        :Manaus_Quarantine_1_5_Dispersion_InLoco_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :ManausSchoolClosure,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 1,
+            :R0 => :AM,
+            :NPI => :ManausInLoco,
+            :NPIprediction => :Baseline,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => :Small_k,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
         :Manaus_NoAge_Dispersion_1_5_NoNPI_Fractal_Discrete => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :None,
@@ -623,6 +646,22 @@ Applies NPI factor using function `α` (see  function `socialdistancing`).
 function InstantaneousContactMatrix(caseopt, A, α)
     d0 = firstday(caseopt[:FirstDay])
     @match caseopt[:Quarantine] begin
+        :ManausSchoolClosure => begin
+        A[2] .= A[1] .+ A[2]
+        q = get(caseopt, :q, 1.0)
+        i0q = get(caseopt,:N0, 1.0)^(1-q)
+        (t, i) ->
+        begin
+            d = searchdate(t, d0)
+            if d < Date("2020-03-16") || d >= Date("2020-08-10")
+                return ((i0q * α(t)) .*  (A[3]' * i)) .+ i0q .* (A[2]' * i)
+            else
+                return ((i0q * α(t)) .* (A[3]' * i)) .+ i0q .* (A[1]' * i)
+            end
+        end
+
+
+    end
         :SP_SchoolClosureFullReturn => begin
                                 A[2] .= A[1] .+ A[2]
                                 q = get(caseopt, :q, 1.0)
@@ -744,7 +783,7 @@ function lossofimmunityprobability(case)
             end
     end
 end
-μ
+
 """
     function totalpopulation(case)
 Returns the total population for each simulation.

@@ -14,18 +14,19 @@ include("plotresults.jl")
 include("stochasticsimulations.jl")
 ##
 # Configuration of the simulation -- choose one of the sets of parameter choices for your simulation.  Create new codes for new simulations, this way it'll be easy to reproduce simulations for a paper.
-Simulation = :Manaus_NoAge_Dispersion_1_5_NoNPI_Fractal_Discrete #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SPHomog_InLoco_Discrete
+Simulation = :Manaus_Quarantine_1_5_Dispersion_InLoco_Discrete #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SPHomog_InLoco_Discrete
 caseopt = caseoptions(Simulation)
 caseopt[:N0] = 100
 caseopt[:q] = 1.0
-caseopt[:Dispersion] = 1.5
+caseopt[:Dispersion] = 4.0
+#caseopt[:Dispersion] = 1.5
 #caseopt[:ActivityVector] = :None
 #caseopt[:ActivityStructure] = :None
 # Time span for the simulation (in days)
 tspan = (0, 365)
 
 # Number of different runs (to estimate the probability of an outbreak, or the interval of possible final values)
-Nsim = 10
+Nsim = 100
 
 ## Main program - first, create variable with chosen set of parameters
 
