@@ -2,7 +2,7 @@
 using PyPlot, ProgressMeter, JLD, Dates, DSP, DataStructures
 # Plot results?
 PLOT = true
-SAVEPLOT = false
+SAVEPLOT = true
 TextPlot = false
 PLOTtxt = false
 if PLOTtxt
@@ -32,11 +32,14 @@ Nsim = 10
 
 
 @time s,e,i,t,d,Ninfected,p = stochasticsimulation(caseopt, tspan, Nsim)
+
+dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmunityRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today()))/"
+mkdir(dir)
 # The macro @save has problems with caseopt sometimes.
-JLD.save( string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today()).jld", "caseopt", caseopt, "s", s, "e", e, "i", i, "Ninfected", Ninfected, "d", d, "t", t)
+JLD.save(dir*"Data.jld", "caseopt", caseopt, "s", s, "e", e, "i", i, "Ninfected", Ninfected, "d", d, "t", t)
 
 if PLOT
-    plotresults(Simulation, caseopt, s, i, d, Ninfected, true; αd = p[:NPI])
+    plotresults(dir, Simulation, caseopt, s, i, d, Ninfected, true; αd = p[:NPI])
 end
 
 if TextPlot
