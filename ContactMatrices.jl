@@ -10,7 +10,7 @@ Returns the four contact matrices: full, home, school, work, and others.
 """
 function readcontactmatrices(region)
     #dir = "PremSyntheticContactMatrices/generate_synthetic_matrices/output/syntheticcontactmatrices2020/"
-    dir = "ContactMatrices/"
+    dir = "ContactMatrices/syntheticcontactmatrices2020/"
     vars = load(dir * "overall/contact_all.rdata")
     Afull = vars["contact_all"][region]
 
