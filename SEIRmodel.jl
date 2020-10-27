@@ -684,6 +684,7 @@ Returns the stepsize (in days) for the discrete-time simulations.
 """
 function discretestep(case)
     @match case begin
+        Δt::Number => Δt
         :QuarterDay => 0.25
         :HalfDay => 0.5
         :Day => 1.0
@@ -743,13 +744,14 @@ function lossofimmunityprobability(case)
             end
     end
 end
-
+μ
 """
     function totalpopulation(case)
 Returns the total population for each simulation.
 """
 function totalpopulation(case)
     @match case begin
+        n::Integer => n
         :BrittonScience2020   =>  1 # Normalized continuous-time model
         :SP =>  12_325_232 # https://agenciadenoticias.ibge.gov.br/agencia-sala-de-imprensa/2013-agencia-de-noticias/releases/28668-ibge-divulga-estimativa-da-populacao-dos-municipios-para-2020
         :Manaus => 2_219_580 # Como acima

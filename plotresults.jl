@@ -4,7 +4,7 @@ using PyPlot
 if PLOTtxt
     using UnicodePlots
 end
-function plotresults(Simulation, caseopt, s, i, d, Ninfected, PlotSocialDist = false; αd = d -> 1.0)
+function plotresults(dir, Simulation, caseopt, s, i, d, Ninfected, PlotSocialDist = false; αd = d -> 1.0)
     Nsteps,Nsim = size(s)
     colors = ("b","g","r","c","m","y","tab:blue","tab:orange","tab:green","tab:red",
     "tab:purple","tab:brown","tab:pink","tab:gray","tab:olive","tab:cyan")
@@ -24,7 +24,7 @@ function plotresults(Simulation, caseopt, s, i, d, Ninfected, PlotSocialDist = f
     xticks(rotation=30)
     grid()
     if SAVEPLOT
-        savefig(string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Infected.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Infected.svg")
     end
     fig = figure(2)
     clf()
@@ -82,7 +82,7 @@ function plotresults(Simulation, caseopt, s, i, d, Ninfected, PlotSocialDist = f
     end
     grid(true)
     if SAVEPLOT
-        savefig(string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Cummulative.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Cummulative.svg")
     end
     #legend(loc = "best")
     show();
@@ -99,7 +99,7 @@ function plotresults(Simulation, caseopt, s, i, d, Ninfected, PlotSocialDist = f
         PyPlot.title("Social distancing index")
         xticks(rotation=30)
         if SAVEPLOT
-            savefig(string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())SocialDistancing.svg")
+            savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())SocialDistancing.svg")
         end
     end
 
@@ -109,7 +109,7 @@ function plotresults(Simulation, caseopt, s, i, d, Ninfected, PlotSocialDist = f
     PyPlot.title("Number of cases in $Nsim simulations")
     show()
     if SAVEPLOT
-        savefig(string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Distribution.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Distribution.svg")
     end
 end
 if PLOTtxt
