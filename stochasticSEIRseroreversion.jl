@@ -2,7 +2,8 @@
 using PyPlot, ProgressMeter, JLD, Dates, DSP, DataStructures
 # Plot results?
 PLOT = true
-SAVEPLOT = true
+SAVE = false
+SAVEPLOT = false
 TextPlot = false
 PLOTtxt = false
 if PLOTtxt
@@ -14,11 +15,9 @@ include("plotresults.jl")
 include("stochasticsimulations.jl")
 ##
 # Configuration of the simulation -- choose one of the sets of parameter choices for your simulation.  Create new codes for new simulations, this way it'll be easy to reproduce simulations for a paper.
-Simulation = :Manaus_Quarantine_1_5_Dispersion_InLoco_Discrete #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SPHomog_InLoco_Discrete
+Simulation = :SP_NoAge_Dispersion_EstimatedRt_Discrete #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SPHomog_InLoco_Discrete
 caseopt = caseoptions(Simulation)
 caseopt[:N0] = 100
-caseopt[:q] = 1.0
-caseopt[:Dispersion] = 4.0
 #caseopt[:Dispersion] = 1.5
 #caseopt[:ActivityVector] = :None
 #caseopt[:ActivityStructure] = :None
@@ -35,10 +34,11 @@ Nsim = 100
 @time s,e,i,t,d,Ninfected,p = stochasticsimulation(caseopt, tspan, Nsim)
 
 dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmunityRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today()))/"
-mkdir(dir)
-# The macro @save has problems with caseopt sometimes.
-JLD.save(dir*"Data.jld", "caseopt", caseopt, "s", s, "e", e, "i", i, "Ninfected", Ninfected, "d", d, "t", t)
-
+if SAVE
+    mkdir(dir)
+    # The macro @save has problems with caseopt sometimes.
+    JLD.save(dir*"Data.jld", "caseopt", caseopt, "s", s, "e", e, "i", i, "Ninfected", Ninfected, "d", d, "t", t)
+end
 if PLOT
     plotresults(dir, Simulation, caseopt, s, i, d, Ninfected, true; αd = p[:NPI])
 end

@@ -13,6 +13,125 @@ Returns a dictionary with the options chosen for a particular simulation.
 """
 function caseoptions(Simulation)
     caseopt = @match Simulation begin
+        :Manaus_NoAge_Continuous => begin
+            Dict(:Model => :SEIRAgeContinuous,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :R0 => 3.0,
+            :NPI => :None,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Continuous,
+            :StepSize => :QuarterDay)
+        end
+        :SP_NoAge_EstimatedRt => begin
+            Dict(:Model => :SEIRAgeContinuous,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :SP,
+            :FirstDay => :SP,
+            :R0 => 1.0,
+            :NPI => :RtSP_29out2020,
+            :NPIprediction => :KeepLast, # For this simulation, this means no social distancing
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Continuous,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_NoAge_EstimatedRt => begin
+            Dict(:Model => :SEIRAgeContinuous,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 1,
+            :R0 => 1.0,
+            :NPI => :RtManaus_29out2020,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Continuous,
+            :StepSize => :QuarterDay)
+        end
+
+        :SP_NoAge_EstimatedRt_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :SP,
+            :FirstDay => :Jan1st,
+            :R0 => 1.0,
+            :NPI => :RtSP_29out2020,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_NoAge_EstimatedRt_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Jan18,
+            :R0 => 1.0,
+            :NPI => :RtManaus_29out2020,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
         :Manaus_Quarantine_1_5_Dispersion_InLoco_Discrete => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :ManausSchoolClosure,
@@ -35,15 +154,14 @@ function caseoptions(Simulation)
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
-
-        :Manaus_NoAge_Dispersion_1_5_NoNPI_Fractal_Discrete => begin
+        :SP_NoAge_Dispersion_NoNPI_Discrete => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :None,
             :LossImmRate => :None,
             :SeroRevProb => :None,
             :LossImmProb => :None,
-            :Population => :Manaus,
-            :FirstDay => :Manaus,
+            :Population => :SP,
+            :FirstDay => :SP,
             :R0 => :SP,
             :NPI => :None,
             :RecoveryRate => :BrittonScience2020,
@@ -52,9 +170,32 @@ function caseoptions(Simulation)
             :ContactMatrix => :None,
             :ActivityVector => :Superspreaders,
             :ActivityStructure => :Superspreaders,
-            :Dispersion => :None,
-            :q => 0.13,
-            :N0 => 100,
+            :Dispersion => 0.2,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_NoAge_Dispersion_NoNPI_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :R0 => :AM,
+            :NPI => :None,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 1.5,
+            :q => 1.0,
+            :N0 => 1,
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
@@ -653,10 +794,11 @@ function InstantaneousContactMatrix(caseopt, A, α)
         (t, i) ->
         begin
             d = searchdate(t, d0)
+            i0qα = i0q * α(t)
             if d < Date("2020-03-16") || d >= Date("2020-08-10")
-                return ((i0q * α(t)) .*  (A[3]' * i)) .+ i0q .* (A[2]' * i)
+                return (i0qα .*  (A[3] * i)) .+ i0q .* (A[2] * i)
             else
-                return ((i0q * α(t)) .* (A[3]' * i)) .+ i0q .* (A[1]' * i)
+                return (i0qα .* (A[3] * i)) .+ i0q .* (A[1] * i)
             end
         end
 
@@ -670,14 +812,14 @@ function InstantaneousContactMatrix(caseopt, A, α)
                                 begin
                                     d = searchdate(t, d0)
                                     if d < Date("2020-03-24") || d >= Date("2020-10-05")
-                                        return ((i0q * α(t)) .*  (A[3]' * i)) .+ i0q .* (A[2]' * i)
+                                        return ((i0q * α(t)) .*  (A[3] * i)) .+ i0q .* (A[2] * i)
                                     else
-                                        return ((i0q * α(t)) .* (A[3]' * i)) .+ i0q .* (A[1]' * i)
+                                        return ((i0q * α(t)) .* (A[3] * i)) .+ i0q .* (A[1] * i)
                                     end
                                 end
                             end
-        :None => (t, i) -> α(t) .* (sum(A)' * i)
-         _ =>  (t, i) -> α(t) .* (sum(A)' * i) # Constant contact matrix
+        :None => (t, i) -> α(t) .* (sum(A) * i)
+         _ =>  (t, i) -> α(t) .* (sum(A) * i) # Constant contact matrix
     end
 end
 
@@ -807,6 +949,12 @@ Returns the day of first case for a given case.
 """
 function firstday(case)
     @match case begin
+        d::Date => d
+        :Jan1st => Date("2020-01-01")
+        :Jan15 => Date("2020-01-015")
+        :Jan18 => Date("2020-01-018")
+        :Feb1st => Date("2020-02-01")
+        :Feb18 => Date("2020-02-18")
         :BrittonScience2020 => Date("2019-12-01")
         :Brazil       ||
         :SP    =>  Date("2020-02-25")
@@ -823,18 +971,50 @@ end
     function searchsocialdistancing(t, d, d0, αd)
 Returns the value of the social distancing index (essentially, the reduction in R0) for a given day.  `t` is a continuous variable, `d` is a vector of dates for which social distancing indices are available, `d0` is the first day, `αd` is a vector of same length as `d` with the social distancing indices.
 """
-function searchsocialdistancing(t, d, d0, αd, endoption = :Baseline)
-    if d[1] > d0 + Day(floor(Int,t)) # before first day
-        return 1.0
-    elseif d[end] < d0 + Day(floor(Int,t)) # There are many choices of what to do after the last value of social distancing index.
-        @match endoption begin
-            :Baseline => return 1.0 # No social distancing after last data
-            :KeepLast => return min(1.0 - αd[end], 1.0) # keep last value
-            n::Real, if 0 ≤ endoption end => min(1.0-αd[end] + (t-(d[end]-d0).value) * endoption, 1.0) # gradual return to baseline.
+function searchsocialdistancing(
+    t,
+    d,
+    d0,
+    αd,
+    endoption = :Baseline,
+    type = :SocialDistancing,
+)
+    @match type begin
+        :Rt => begin
+            if d[1] > d0 + Day(floor(Int, t)) # before first day
+                return 3.0
+            elseif d[end] < d0 + Day(floor(Int, t)) # There are many choices of what to do after the last value of social distancing index.
+                @match endoption begin
+                    :Baseline => return 3.0 # No social distancing after last data
+                    :KeepLast => return αd[end] # keep last value
+                    :Lockdown => return 0.0
+                    n::Real,
+                    if 0 ≤ endoption
+                    end => αd[end] - (t - (d[end] - d0).value) * endoption # gradual return to baseline.
+                end
+            else
+                n0 = findfirst(x -> x >= d0 + Day(floor(Int, t)), d)
+                return αd[n0]
+            end
         end
-    else
-        n0 = findfirst(x -> x >= d0 + Day(floor(Int,t)), d)
-        return 1.0-αd[n0]
+        _ || :SocialDistancing => begin
+            if d[1] > d0 + Day(floor(Int, t)) # before first day
+                return 1.0
+            elseif d[end] < d0 + Day(floor(Int, t)) # There are many choices of what to do after the last value of social distancing index.
+                @match endoption begin
+                    :Baseline => return 1.0 # No social distancing after last data
+                    :KeepLast => return min(1.0 - αd[end], 1.0) # keep last value
+                    :Lockdown => return 0.0
+                    n::Real,
+                    if 0 ≤ endoption
+                    end =>
+                        min(1.0 - αd[end] + (t - (d[end] - d0).value) * endoption, 1.0) # gradual return to baseline.
+                end
+            else
+                n0 = findfirst(x -> x >= d0 + Day(floor(Int, t)), d)
+                return 1.0 - αd[n0]
+            end
+        end
     end
 end
 """
@@ -843,6 +1023,7 @@ Returns the value of R0 used in each simulation.  The values here for the states
 """
 function Rzero(case)
     @match case begin
+        n::Number        => n
         :BrittonScience2020 || :LewisPaper2020   =>  2.5
         :Brazil          =>  3.1
         :SP              =>  2.9
@@ -921,6 +1102,24 @@ function socialdistancing(caseopt)
             αd = Array(query(df, :(state_name == "Amazonas" && city_name == "Manaus"))[[:isolated]])
             basal_level = minimum(αd[1:40])
             return t -> searchsocialdistancing(t, d, firstday(caseopt[:FirstDay]), (αd .- basal_level) ./ (1-basal_level))
+        end
+        :RtManaus_29out2020 => begin
+            df = read_csv("Rt/Rt ManausTeste.csv")
+            dfnames = columns(df)
+            d = Date.(Array(df["dates"]))
+            αd = Array(df["Rt"])
+            return t -> searchsocialdistancing(t, d, firstday(caseopt[:FirstDay]), #fill(1.0-3.0*0.25,length(d)),
+                αd,
+                         get(caseopt,:NPIprediction,:KeepLast), :Rt)
+        end
+        :RtSP_29out2020 => begin
+            df = read_csv("Rt/Rt São PauloTeste.csv")
+            dfnames = columns(df)
+            d = Date.(Array(df["dates"]))
+            αd = Array(df["Rt"])
+            return t -> searchsocialdistancing(t, d, firstday(caseopt[:FirstDay]), #fill(1.0-3.0*0.25,length(d)),
+                αd,
+                         get(caseopt,:NPIprediction,:KeepLast), :Rt)
         end
         _ => begin
                 println("Choice for :NPI not found.")
@@ -1299,6 +1498,13 @@ Returns a vector with the initial conditions for each case.
 """
 function initcond(caseopt,πv,sind,eind)
     @match caseopt[:InitCond] begin
+        :Continuous        => begin
+                                ϵ = caseopt[:N0] / totalpopulation(caseopt[:Population])
+                                x = zeros(length(indices(caseopt,πv))*length(sind))
+                                x[eind] .= ϵ .* πv
+                                x[sind] .= (1-ϵ) .* πv
+                                return x
+                            end
         :BrittonScience2020  =>  begin
                                 ϵ = 1e-4
                                 x = zeros(length(indices(caseopt,πv))*length(sind))
@@ -1369,7 +1575,7 @@ function seirseroreversion!(du, u, p, t)
     rsp = view(u, rspind)
     rsn = view(u, rsnind)
     rls = view(u, rlsind)
-    tempAi = A(t)'*i
+    tempAi = A(t,i)
     tempse = tempAi .* s
     tempsre = tempAi .* sr
     tempei = σ .* e
@@ -1410,7 +1616,7 @@ function seir!(du, u, p, t)
     e = view(u, eind)
     i = view(u, iind)
     r = view(u, rind)
-    tempse = ((A(t)'*i) .* s)
+    tempse = (A(t,i) .* s)
     tempei = σ .* e
     tempir = μ .* i
 

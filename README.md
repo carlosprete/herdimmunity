@@ -91,7 +91,7 @@ Several features were added to these basic models:
 
 5. A fractal model adapting [^Abbasi2020] was also included, changing the update equations to
    $$
-   \frac{dS}{dt} = - A^T I(0)^(1-q)I(t)^q \frac{S}{N},
+   \frac{dS}{dt} = - A^T I(0)^{1-q}I(t)^q \frac{S}{N},
    $$
    where $q$ is a parameter associated to Tsallis statistics.  The discrete-time model was similarly modified.
 

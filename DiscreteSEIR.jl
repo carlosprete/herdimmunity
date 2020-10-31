@@ -17,20 +17,21 @@ function discretestochasticSEIR!(upost, upre, p, t)
     Δt = p[:StepSize]          # stepsize (in days)
 #    α = p[:NPI]   # function to compute social distancing index
     q = get(caseopt, :q, 1.0)
-    
+
     s = view(upre, sind)
     e = view(upre, eind)
     i = view(upre, iind)
     r = view(upre, rind)
-    Ai = ATi(t,i.^q)
-    B = rand.(Binomial.(s, 1 .- exp.(-(Δt/N).*(Ai))))
-    C = rand.(Binomial.(e, 1 - exp(-σ*Δt)))
-    D = rand.(Binomial.(i, 1 - exp(-μ*Δt)))
+    Δtnorm = -Δt / N
+    A = Δtnorm .* ATi(t, i.^q)
+    upost[eind] .= rand.(Binomial.(s, 1 .- exp.(A)))
+    upost[iind] .= rand.(Binomial.(e, 1 - exp(-σ*Δt)))
+    upost[rind] .= rand.(Binomial.(i, 1 - exp(-μ*Δt)))
 
-    upost[sind] = s .- B
-    upost[eind] = e .+ B .- C
-    upost[iind] = i .+ C .- D
-    upost[rind] = r .+ D
+    upost[sind] .= s .- upost[eind]
+    upost[eind] .+= e .+ .- upost[iind]
+    upost[iind] .+= i .- upost[rind]
+    upost[rind] .+= r
 
     for k = 1:length(upost)
         if upost[k] < 0
