@@ -26,6 +26,21 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Ninfected, PlotSocialDis
     if SAVEPLOT
         savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Infected.svg")
     end
+    fig0 = figure(5)
+    clf()
+    ax01 = subplot(121)
+    ax01.set_xlabel("Date")
+    ax01.set_ylabel(L"$i(t)$ (%)")
+    grid(true)
+    PyPlot.title("Infected population (%)")
+    xticks(rotation=30)
+    ax02 = subplot(122)
+    ax02.set_xlabel("Date")
+    ax02.set_ylabel(L"$1-s(t)$ (%)")
+    PyPlot.title("Cumulative infected (%)")
+
+    grid(true)
+    xticks(rotation=30)
     fig = figure(2)
     clf()
     outbreaks = findall(s[end,:] .< 0.95Pop) # finds the simulations with outbreaks to plot
@@ -53,6 +68,8 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Ninfected, PlotSocialDis
 
     color = 1
     for sim in outbreaks
+        ax01.plot(d, i[:,sim]*100/Pop, lw = 2, color = colors[mod1(color,Ncolors)], "-", label = "Infected people")
+        ax02.plot(d, (Pop .- s[:,sim])*100/Pop, color = colors[mod1(color,Ncolors)], lw = 2, label = "Cummulative infected")
 
         ax1.plot(d, i[:,sim], lw = 2, color = colors[mod1(color,Ncolors)], "-", label = "Infected people")
 

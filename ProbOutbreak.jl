@@ -15,7 +15,7 @@ include("stochasticsimulations.jl")
 include("ProbExtinction.jl")
 ##
 # Configuration of the simulation -- choose one of the sets of parameter choices for your simulation.  Create new codes for new simulations, this way it'll be easy to reproduce simulations for a paper.
-Simulation = :SP_NoAge_Dispersion_NoNPI_Discrete #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SPHomog_InLoco_Discrete
+Simulation = :Manaus_NoAge_Dispersion_NoNPI_Discrete #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SPHomog_InLoco_Discrete
 caseopt = caseoptions(Simulation)
 N0 = 1
 caseopt[:N0] = N0
@@ -24,7 +24,7 @@ caseopt[:q] = 1.0
 tspan = (0, 365)
 
 # Number of different runs (to estimate the probability of an outbreak, or the interval of possible final values)
-Nsim = 10_000
+Nsim = 100
 println()
 ## Main program - first, create variable with chosen set of parameters
 k = [0.04, 0.07, 0.1, 0.2, 0.5, 1.0, 1.5, 2.0, 5.0, 10.0, 20.0, 50.0, 100.0]
@@ -54,7 +54,8 @@ title("Outbreak probability vs. dispersion factor")
 legend()
 savefig(dir*"OutbreakProb_$(Simulation)_Nsim_$(Nsim).svg")
 figure(2);clf()
-stem(k, AttackRate)
+stem(log10.(k), AttackRate, label = "Simulation")
+stem(log10.(k), 100*attackrate.(Rzero(caseopt[:R0]), k), label = "Theorectical", "r", markerfmt = "r^")
 xlabel(L"Dispersion factor $k$")
 ylabel("Final infected")
 title("Attack rate vs. dispersion factor")

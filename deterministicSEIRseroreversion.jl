@@ -7,12 +7,14 @@ include("plotresults.jl")
 SAVE = true
 SAVEPLOT = true
 
-Simulation = :SP_NoAge_EstimatedRt
+Simulation = :SP_NoAge_Continuous
+#:SP_NoAge_EstimatedRt
 #dinit = Date("2020-01-01")
 caseopt = caseoptions(Simulation)
 dinit = firstday(caseopt[:FirstDay])
-N0 = 5000 * round(totalpopulation(caseopt[:Population])/totalpopulation(:Manaus), digits = 2)
-caseopt[:N0] = N0
+N0 = 1
+#N0 = 5000 * round(totalpopulation(caseopt[:Population])/totalpopulation(:Manaus), digits = 2)
+#caseopt[:N0] = N0
 
 dir = "Results/"*string(Simulation)*"_$(dinit)_N0=$(get(caseopt,:N0,1))__$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_$(today())/"
 if SAVE || SAVEPLOT
@@ -71,7 +73,7 @@ for dd in days
     color = "tab:red"
     ax1.set_xlabel("Date")
     ax1.set_ylabel(L"$i(t)$", color = color)
-    ax1.plot(d, i, lw = 2, "-", color = color, label = "Fraction of infected people")
+    ax1.plot(d, i*totalpopulation(caseopt[:Population]), lw = 2, "-", color = color, label = "Fraction of infected people")
     ax1.tick_params(axis = "y", labelcolor = color)
     HerdImmunityPoint = findmax(i)[2]
     HerdImmunityLevel = 1.0 - 1.0 / Rzero(caseopt[:R0])
@@ -90,7 +92,7 @@ for dd in days
     #fig.tight_layout()  # otherwise the right y-label is slightly clipped
     xlabel("Date")
     # title("Fraction of infected population (left); Cumulative infected (right)")
-    title("Evolution of epidemic for "*string(caseopt[:Population])*", N0 = $(N0) $(N0 == 1 ? "case" : "cases") at d0 = $(d0)")
+    title(string(caseopt[:Population])*", N0 = $(N0) $(N0 == 1 ? "case" : "cases") in $(d0)")
 
 
 

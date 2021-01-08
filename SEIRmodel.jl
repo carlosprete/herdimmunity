@@ -13,6 +13,165 @@ Returns a dictionary with the options chosen for a particular simulation.
 """
 function caseoptions(Simulation)
     caseopt = @match Simulation begin
+        :Manaus_Quarantine_Dispersion_SchoolClosure_LossImm_Discrete => begin
+            Dict(:Model => :SEIRSeroRevDiscrete,
+            :Quarantine => :ManausSchoolClosure,
+            :LossImmRate => 1 / 90,
+            :SeroRevProb => 0.8,
+            :LossImmProb => .2,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 100,
+            :R0 => :SP,
+            :NPI => :None,
+            :NPIprediction => :Baseline,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 5.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_Quarantine_NoDispersion_NewVariant_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :ManausSchoolClosure,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 1,
+            :R0 => 4.7,
+            :NPI => :NewVariant,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 100.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoDispersion_NewVariant_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 100,
+            :R0 => 4.7,
+            :NPI => :NewVariant,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_Dispersion_NewVariant_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 100,
+            :R0 => 4.7,
+            :NPI => :NewVariant,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 1.5,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_Quarantine_Dispersion_SchoolClosure_NewVariant_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :ManausSchoolClosure,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 100,
+            :R0 => 4.7,
+            :NPI => :NewVariant,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 1.5,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_Quarantine_Dispersion_SchoolClosure_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :ManausSchoolClosure,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 1,
+            :R0 => :AM,
+            :NPI => :None,
+            :NPIprediction => :Baseline,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 5.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :SP_NoAge_Continuous => begin
+            Dict(:Model => :SEIRAgeContinuous,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :SP,
+            :FirstDay => :SP,
+            :R0 => :SP,
+            :NPI => :None,
+            :NPIprediction => :KeepLast,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Continuous,
+            :StepSize => :QuarterDay)
+        end
         :Manaus_NoAge_Continuous => begin
             Dict(:Model => :SEIRAgeContinuous,
             :Quarantine => :None,
@@ -176,7 +335,50 @@ function caseoptions(Simulation)
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
-
+        :Manaus_NoAge_NoNPI_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :R0 => :AM,
+            :NPI => :None,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_Age_NoNPI_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :R0 => :AM,
+            :NPI => :None,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilFull,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :q => 1.0,
+            :N0 => 1,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
         :Manaus_NoAge_Dispersion_NoNPI_Discrete => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :None,
@@ -310,12 +512,33 @@ function caseoptions(Simulation)
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
+        :SP_Quarantine_GovSP_SchoolReturns_Discrete => begin
+            Dict(:Model => :SEIRDiscrete,
+            :Quarantine => :SP_SchoolClosureFullReturn,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :N0 => 100,
+            :Population => :SP,
+            :FirstDay => :SP,
+            :R0 => :SP,
+            :NPI => :SPGov,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :SP75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
 
         :SP_Quarantine_LowDispersion_GovSP_Slow_SeroRev_Discrete => begin
             Dict(:Model => :SEIRSeroRevDiscrete,
             :Quarantine => :SP_SchoolClosureFullReturn,
             :LossImmRate => 1 / (8*30), # Eight months
-            :SeroRevProb => 1 / 500,
+            :SeroRevProb => 0.1,
             :LossImmProb => 1.0,
             :N0 => 100,
             :Population => :SP,
@@ -540,7 +763,7 @@ function caseoptions(Simulation)
             :ContactMatrix => :BrazilFull,
             :ActivityVector => :Superspreaders,
             :ActivityStructure => :Superspreaders,
-            :Dispersion => :COVID_Endo2020,
+            :Dispersion => :0.1,
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
@@ -603,7 +826,7 @@ function caseoptions(Simulation)
             :ContactMatrix => :BrazilFull,
             :ActivityVector => :Superspreaders,
             :ActivityStructure => :Superspreaders,
-            :Dispersion => :COVID_Endo2020,
+            :Dispersion => 0.1,
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
@@ -637,6 +860,8 @@ function caseoptions(Simulation)
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :R0 => :AM,
+            :N0 => 1,
+            :Dispersion => :None,
             :NPI => :None,
             :RecoveryRate => :BrittonScience2020,
             :IncubationRate => :BrittonScience2020,
@@ -977,8 +1202,7 @@ function searchsocialdistancing(
     d0,
     αd,
     endoption = :Baseline,
-    type = :SocialDistancing,
-)
+    type = :SocialDistancing)
     @match type begin
         :Rt => begin
             if d[1] > d0 + Day(floor(Int, t)) # before first day
@@ -1011,8 +1235,9 @@ function searchsocialdistancing(
                         min(1.0 - αd[end] + (t - (d[end] - d0).value) * endoption, 1.0) # gradual return to baseline.
                 end
             else
-                n0 = findfirst(x -> x >= d0 + Day(floor(Int, t)), d)
-                return 1.0 - αd[n0]
+                n0 = findfirst(x -> x > d0 + Day(floor(Int, t)), d)
+                n0 = n0 == nothing ? length(d) : n0
+                return 1.0 - αd[n0-1]
             end
         end
     end
@@ -1045,9 +1270,21 @@ Returns a function to compute the social index index.  Some options read data ob
 function socialdistancing(caseopt)
     @match caseopt[:NPI] begin
         :None   =>  (t -> 1.0) # constant equal to 1.0
+        :NewVariant => begin
+            d = fill(firstday(caseopt[:FirstDay]),4)
+            d[2] = Date("2020-03-16")
+            d[3] = Date("2020-08-10")
+            d[4] = Date("2020-09-01")
+            αd = zeros(4)
+            αd[1] = 1.0 - 1.0 / 1.56
+            αd[2] = 1.0 - 1.0 / 2.5
+            αd[3] = 1.0 - 1.0 / 1.56
+            αd[4] = 1.0 - 1.0 / 1.0
+            return t -> searchsocialdistancing(t, d, firstday(caseopt[:FirstDay]), αd, :KeepLast)
+        end
         :SPGovRaw   => begin # From https://www.saopaulo.sp.gov.br/coronavirus/isolamento
         # Remember to remove first blank row, if necessary.
-            df = read_excel("NPI_Data/IsolamentoGovSP15out2020.xlsx")
+            df = read_excel("NPI_Data/IsolamentoGovSP06nov2020.xlsx")
             dfnames = columns(df)
             d = [Date(dfnames[i]*"20", "dd/mm/yyyy") for i in 5:size(df)[2]]
             #d = [Date(dfnames[i][end-4:end]*"/2020", "dd/mm/yyyy") for i in 4:size(df)[2]]
@@ -1057,7 +1294,7 @@ function socialdistancing(caseopt)
         end
         :SPGov   => begin # From https://www.saopaulo.sp.gov.br/coronavirus/isolamento
         # Remember to remove first blank row, if necessary.
-            df = read_excel("NPI_Data/IsolamentoGovSP15out2020.xlsx")
+            df = read_excel("NPI_Data/IsolamentoGovSP06nov2020.xlsx")
             dfnames = columns(df)
             d = [Date(dfnames[i]*"20", "dd/mm/yyyy") for i in 5:size(df)[2]]
             #d = [Date(dfnames[i][end-4:end]*"/2020", "dd/mm/yyyy") for i in 4:size(df)[2]]
@@ -1065,6 +1302,17 @@ function socialdistancing(caseopt)
             # basal level -> minimum of period immediately before NPIs implemented.
             basal_level = minimum(αd[1:4])
             return t -> searchsocialdistancing(t, d, firstday(caseopt[:FirstDay]), (αd .- basal_level)./(1-basal_level))
+        end
+        :SPGov_double   => begin # From https://www.saopaulo.sp.gov.br/coronavirus/isolamento
+        # Remember to remove first blank row, if necessary.
+            df = read_excel("NPI_Data/IsolamentoGovSP06nov2020.xlsx")
+            dfnames = columns(df)
+            d = [Date(dfnames[i]*"20", "dd/mm/yyyy") for i in 5:size(df)[2]]
+            #d = [Date(dfnames[i][end-4:end]*"/2020", "dd/mm/yyyy") for i in 4:size(df)[2]]
+            αd = Array(query(df, :(Município1 == "SÃO PAULO")))[5:end]
+            # basal level -> minimum of period immediately before NPIs implemented.
+            basal_level = minimum(αd[1:4])
+            return t -> searchsocialdistancing(t, d, firstday(caseopt[:FirstDay]), (2.0*(αd .- basal_level)./(1-basal_level)))
         end
         :SPInLocoRaw => begin
 
@@ -1401,6 +1649,8 @@ function Amatrix(caseopt)
                             Nk = maximum(length.(actvalues))
                             actprobsext = Vector{Vector{Float64}}(undef, Na)
                             actvaluessqrt = Vector{Vector{Float64}}(undef, Na)
+
+                            #on = ones(1, Nk)
                             for ia in 1:Nmatrices
                                 A[ia] = zeros(Na*Nk, Na*Nk)
                                 Atemp = Avec[ia]
@@ -1409,16 +1659,18 @@ function Amatrix(caseopt)
                                     actprobsext[r] = vcat(actprobs[r],zeros(Nk-Nkr))
                                     # This option assumes superspreaders are not supersusceptible
                                     #A[1+(r-1)*Nk:r*Nk, :] .= Atemp[r,:]' ⊗ (vcat(actvalues[r],zeros(Nk-Nkr)) * ones(1, Nk))
+                                    #actvaluessqrt[r] = vcat(actvalues[r],zeros(Nk-Nkr))
                                     # This options assumes superspreaders are also supersusceptible
                                     actvaluessqrt[r] = vcat(sqrt.(actvalues[r]),zeros(Nk-Nkr))
                                 end
                                 for r in 1:Na
                                     for l in 1:Na
                                         A[ia][1+(r-1)*Nk:r*Nk, 1+(l-1)*Nk:l*Nk] .= Atemp[r,l] .* (actvaluessqrt[r] * actvaluessqrt[l]')
+                                        #A[ia][1+(r-1)*Nk:r*Nk, 1+(l-1)*Nk:l*Nk] .= Atemp[r,l] .* (actvaluessqrt[r] * on)
                                     end
                                 end
                             end
-                            return A,actprobsext
+                            return A, actprobsext #(A + A')/2,actprobsext
                         end
                         _ =>    begin
                             for ia in 1:length(Avec)
@@ -1455,7 +1707,7 @@ function NormalizedContactMatrix(caseopt)
         _ => begin
             πvec = πvector(caseopt)
             A,temp = Amatrix(caseopt)
-            κ = NormalizationFactor(caseopt, A[1], πvec)
+            κ = NormalizationFactor(caseopt, sum(A), πvec)
             κ .* A,πvec
         end
     end
