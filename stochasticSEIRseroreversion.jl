@@ -15,17 +15,30 @@ include("plotresults.jl")
 include("stochasticsimulations.jl")
 ##
 # Configuration of the simulation -- choose one of the sets of parameter choices for your simulation.  Create new codes for new simulations, this way it'll be easy to reproduce simulations for a paper.
-Simulation = :SP_NoAge_Dispersion_EstimatedRt_Discrete #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SPHomog_InLoco_Discrete
+Simulation = :Manaus_Quarantine_Dispersion_SchoolClosure_LossImm_Discrete
+#:SP_Quarantine_LowDispersion_GovSP_Discrete
+#:Manaus_Age_NoNPI_Discrete
+#:ManausHomog_NoNPI_Discrete #:SP_Quarantine_LowDispersion_GovSP_Slow_SeroRev_Discrete
+#:SP_Quarantine_LowDispersion_GovSP_Discrete
+        #:SPDispersion_NoNPI_Discrete
+        #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SP_Quarantine_LowDispersion_GovSP_Slow_SeroRev_Discrete #:SP_NoAge_Dispersion_EstimatedRt_Discrete  #:SPHomog_InLoco_Discrete
 caseopt = caseoptions(Simulation)
-caseopt[:N0] = 100
+#caseopt[:N0] = 1
+caseopt[:Dispersion] = 5.0
+#caseopt[:NPI] = :SPGov_double
+#caseopt[:LossImmRate] = 1 / 180
+#caseopt[:SeroRevProb] = 0.3
+# caseopt[:LossImmProb] = 1.0
+#caseopt[:Dispersion] = 20.0
+#caseopt[:R0] = 3.5
 #caseopt[:Dispersion] = 1.5
 #caseopt[:ActivityVector] = :None
 #caseopt[:ActivityStructure] = :None
 # Time span for the simulation (in days)
-tspan = (0, 365)
+tspan = (0, 1.5*365)
 
 # Number of different runs (to estimate the probability of an outbreak, or the interval of possible final values)
-Nsim = 100
+Nsim = 10
 
 ## Main program - first, create variable with chosen set of parameters
 
