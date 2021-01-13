@@ -48,7 +48,7 @@ Nsim = 10
 
 @time s,e,i,t,d,Ninfected,p,OT, Rt = stochasticsimulation(caseopt, tspan, Nsim)
 
-dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmunityRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(now()))/"
+dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmunityTimeConst_$(string(round(1/caseopt[:LossImmTimeRate],digits=2)))_SymmetricSQRT_$(now()))/"
 if SAVE
     mkdir(dir)
     # The macro @save has problems with caseopt sometimes.
