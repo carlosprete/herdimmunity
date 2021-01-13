@@ -2,10 +2,12 @@
 using PyPlot, ProgressMeter, JLD, Dates, DSP, DataStructures
 # Plot results?
 PLOT = true
-SAVE = false
-SAVEPLOT = false
+SAVE = true
+SAVEPLOT = true
 TextPlot = false
 PLOTtxt = false
+ComputeRt = true
+
 if PLOTtxt
     using UnicodePlots
 end
@@ -15,7 +17,7 @@ include("plotresults.jl")
 include("stochasticsimulations.jl")
 ##
 # Configuration of the simulation -- choose one of the sets of parameter choices for your simulation.  Create new codes for new simulations, this way it'll be easy to reproduce simulations for a paper.
-Simulation = :Manaus_Quarantine_Dispersion_SchoolClosure_LossImm_Discrete
+Simulation = :Manaus_Dispersion_SeroRev_NewVar_Discrete
 #:SP_Quarantine_LowDispersion_GovSP_Discrete
 #:Manaus_Age_NoNPI_Discrete
 #:ManausHomog_NoNPI_Discrete #:SP_Quarantine_LowDispersion_GovSP_Slow_SeroRev_Discrete
@@ -24,7 +26,7 @@ Simulation = :Manaus_Quarantine_Dispersion_SchoolClosure_LossImm_Discrete
         #:Manaus_1_5_Dispersion_NoNPI_Discrete #:SP_Quarantine_LowDispersion_GovSP_Slow_SeroRev_Discrete #:SP_NoAge_Dispersion_EstimatedRt_Discrete  #:SPHomog_InLoco_Discrete
 caseopt = caseoptions(Simulation)
 #caseopt[:N0] = 1
-caseopt[:Dispersion] = 5.0
+#caseopt[:Dispersion] = 0.9
 #caseopt[:NPI] = :SPGov_double
 #caseopt[:LossImmRate] = 1 / 180
 #caseopt[:SeroRevProb] = 0.3
@@ -44,16 +46,21 @@ Nsim = 10
 
 
 
-@time s,e,i,t,d,Ninfected,p = stochasticsimulation(caseopt, tspan, Nsim)
+@time s,e,i,t,d,Ninfected,p,OT, Rt = stochasticsimulation(caseopt, tspan, Nsim)
 
-dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:SeroRevProb]))_LossImmunityRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today()))/"
+dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmunityRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(now()))/"
 if SAVE
     mkdir(dir)
     # The macro @save has problems with caseopt sometimes.
-    JLD.save(dir*"Data.jld", "caseopt", caseopt, "s", s, "e", e, "i", i, "Ninfected", Ninfected, "d", d, "t", t)
+    JLD.save(dir*"Data.jld", "caseopt", caseopt, "s", s, "e", e, "i", i, "Ninfected", Ninfected, "d", d, "t", t, "Rt", Rt, "OT", OT)
+end
+if :Ivar in p[:IndexNames] # If there are 2 variants, add the infected for each one.
+    for sim in 1:Nsim
+        i[:, sim] .+= OT[sim][:Ivar]
+    end
 end
 if PLOT
-    plotresults(dir, Simulation, caseopt, s, i, d, Ninfected, true; αd = p[:NPI])
+    plotresults(dir, Simulation, caseopt, s, i, d, Rt, Ninfected, true; αd = p[:NPI])
 end
 
 if TextPlot
