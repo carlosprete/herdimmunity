@@ -131,9 +131,9 @@ function caseoptions(Simulation)
         :Manaus_Dispersion_SeroRev_NewVar_Discrete => begin
             Dict(:Model => :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :None,
-            :LossImmRate => 1 / 120,
+            :LossImmRate => 1 / 180,
             :SeroRevProb => :None,
-            :LossImmProb => 0.5,
+            :LossImmProb => 0.8,
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,

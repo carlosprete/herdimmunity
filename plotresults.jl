@@ -24,7 +24,7 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
     xticks(rotation=30)
     grid()
     if SAVEPLOT
-        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Infected.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyTimeConst_$(string(round(1/caseopt[:LossImmRate],digits=2)))_SymmetricSQRT_$(today())Infected.svg")
     end
     fig0 = figure(5)
     clf()
