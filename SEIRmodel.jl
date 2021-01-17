@@ -36,7 +36,6 @@ function ReplacementNumber(t, u, p, model)
         end
         :SEIRNewVariantDiscrete => begin
             Rt = zeros(N,3) # Saves true Rt (max), and weighted Rt for each variant (using corresponding fraction of infected as weights)
-            ar = p[:LossImmRate]
             TimeIntroduction = p[:TimeIntroduction]
             γR0 = p[:R0fac]
             for n in 1:N
@@ -51,7 +50,6 @@ function ReplacementNumber(t, u, p, model)
         end
         :SEIRSeroRevNewVariantDiscrete => begin
             Rt = zeros(N, 3)
-            ar = p[:LossImmRate]
             TimeIntroduction = p[:TimeIntroduction]
             γR0 = p[:R0fac]
             for n in 1:N
@@ -80,6 +78,374 @@ Returns a dictionary with the options chosen for a particular simulation.
 """
 function caseoptions(Simulation)
     caseopt = @match Simulation begin
+        :Manaus_NoDispersion_NoAge_NPI_SeroRev_Discrete => begin
+            Dict(:Model =>
+            :SEIRSeroRevDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => 1 / 180,
+            :SeroRevProb => 1.0,
+            :LossImmProb => 0.5,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_NoDispersion_NoAge_NPI_SeroRev_Discrete => begin
+            Dict(:Model =>
+            :SEIRSeroRevDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => 1 / 240,
+            :SeroRevProb => 1.0,
+            :LossImmProb => 1.0,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoDispersion_NPI_SeroRev_Discrete => begin
+            Dict(:Model =>
+            :SEIRSeroRevDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => 1 / 240,
+            :SeroRevProb => 1.0,
+            :LossImmProb => 1.0,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.7, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_Dispersion_NPI_SeroRev_Discrete => begin
+            Dict(:Model =>
+            :SEIRSeroRevDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => 1 / 139.04,
+            :SeroRevProb => 1.0,
+            :LossImmProb => 0.5,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 3.0,
+            :N0var => 1,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 0.9, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 2.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoDispersion_NPI_NewVar_Discrete => begin
+            Dict(:Model =>
+            :SEIRNewVariantDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 10.0,
+            :N0var => 1,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoDispersion_SeroRev_NPI_NewVar_Discrete => begin
+            Dict(:Model =>
+            :SEIRSeroRevNewVariantDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => 1 / 139.04,
+            :SeroRevProb => :None,
+            :LossImmProb => 0.5,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 3.0,
+            :N0var => 1,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoAge_NoDispersion_NewVar_Discrete => begin
+            Dict(:Model =>
+            :SEIRNewVariantDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :R0var => 100.0,
+            :N0var => 1,
+            :DateIntroduction => "2020-07-15",
+            :NPI => :None,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoAge_NoDispersion_NPI_Discrete => begin
+            Dict(:Model =>
+            :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilFull,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoAge_NoDispersion_StrongNPI_Discrete => begin
+            Dict(:Model =>
+            :SEIRDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.4, 0.4, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilFull,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_Age_NoDispersion_NPI_NewVar_Discrete => begin
+            Dict(:Model =>
+            :SEIRNewVariantDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 8.0,
+            :N0var => 1,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilFull,
+            :ActivityVector => :None,
+            :ActivityStructure => :None,
+            :Dispersion => :None,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_NoAge_Dispersion_NPI_NewVar_Discrete => begin
+            Dict(:Model =>
+            :SEIRNewVariantDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 8.0,
+            :N0var => 1,
+            :NPI => :None,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :None,
+            :ContactMatrix => :None,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 2.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_Dispersion_NPI_NewVar_Discrete => begin
+            Dict(:Model =>
+            :SEIRNewVariantDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => :None,
+            :SeroRevProb => :None,
+            :LossImmProb => :None,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 5.0,
+            :N0var => 1,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 0.9, 0.6, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 10.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+
+        :Manaus_Dispersion_NPI_SeroRev_NewVar_Discrete => begin
+            Dict(:Model =>
+            :SEIRSeroRevNewVariantDiscrete,
+            :Quarantine => :None,
+            :LossImmRate => 1 / 30,
+            :SeroRevProb => :None,
+            :LossImmProb => 0.3,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 3.0,
+            :N0var => 1,
+            :NPI => :None,
+            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 0.9, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 10.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
+        :Manaus_Quarantine_NPI_Dispersion_SchoolClosure_SeroRev_NewVar_Discrete => begin
+            Dict(:Model => :SEIRSeroRevNewVariantDiscrete,
+            :Quarantine => :ManausSchoolClosure,
+            :LossImmRate => 1 / 60,
+            :SeroRevProb => :None,
+            :LossImmProb => 0.0,
+            :Population => :Manaus,
+            :FirstDay => :Manaus,
+            :N0 => 10,
+            :R0 => 3.0,
+            :DateIntroduction => "2020-07-15",
+            :R0var => 10.0,
+            :N0var => 1,
+            :NPI => :PiecewiseLinear,
+            :NPIdates => ["2020-03-12", "2020-03-13", "2020-03-23", "2020-05-13", "2020-06-01", "2020-06-20", "2020-08-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
+            :NPIvalues => [1.0, 0.8, 0.7, 0.5, 0.7, 0.8, 0.9, 1.0, 1.0, 0.7, 1.0],
+            :NPIprediction => :Baseline,
+            :RecoveryRate => :BrittonScience2020,
+            :IncubationRate => :BrittonScience2020,
+            :AgeStructure => :Manaus75,
+            :ContactMatrix => :BrazilSeparate,
+            :ActivityVector => :Superspreaders,
+            :ActivityStructure => :Superspreaders,
+            :Dispersion => 20.0,
+            :InitCond => :Discrete,
+            :StepSize => :QuarterDay)
+        end
         :Manaus_Quarantine_Dispersion_SchoolClosure_SeroRev_NewVar_Discrete => begin
             Dict(:Model => :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :ManausSchoolClosure,
@@ -131,7 +497,7 @@ function caseoptions(Simulation)
         :Manaus_Dispersion_SeroRev_NewVar_Discrete => begin
             Dict(:Model => :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :None,
-            :LossImmRate => 1 / 180,
+            :LossImmRate => 1 / 120,
             :SeroRevProb => :None,
             :LossImmProb => 0.8,
             :Population => :Manaus,
@@ -140,7 +506,7 @@ function caseoptions(Simulation)
             :R0 => 3.0,
             :DateIntroduction => "2020-07-15",
             :R0var => 3.0,
-            :N0var => 10,
+            :N0var => 1,
             :NPI => :None,
             :NPIprediction => :Baseline,
             :RecoveryRate => :BrittonScience2020,
@@ -203,7 +569,7 @@ function caseoptions(Simulation)
             :StepSize => :QuarterDay)
         end
 
-        :Manaus_Quarantine_NoDispersion_NewVariant_Discrete => begin
+        :Manaus_Quarantine_NoDispersion_NewVariant_Discrete_old => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :ManausSchoolClosure,
             :LossImmRate => :None,
@@ -225,7 +591,7 @@ function caseoptions(Simulation)
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
-        :Manaus_NoDispersion_NewVariant_Discrete => begin
+        :Manaus_NoDispersion_NewVariant_Discrete_old => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :None,
             :LossImmRate => :None,
@@ -248,7 +614,7 @@ function caseoptions(Simulation)
             :StepSize => :QuarterDay)
         end
 
-        :Manaus_Dispersion_NewVariant_Discrete => begin
+        :Manaus_Dispersion_NewVariant_Discrete_old => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :None,
             :LossImmRate => :None,
@@ -270,7 +636,7 @@ function caseoptions(Simulation)
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
-        :Manaus_Quarantine_Dispersion_SchoolClosure_NewVariant_Discrete => begin
+        :Manaus_Quarantine_Dispersion_SchoolClosure_NewVariant_Discrete_old => begin
             Dict(:Model => :SEIRDiscrete,
             :Quarantine => :ManausSchoolClosure,
             :LossImmRate => :None,
@@ -1026,8 +1392,8 @@ function caseoptions(Simulation)
             :LossImmProb => :None,
             :Population => :Manaus,
             :FirstDay => :Manaus,
-            :R0 => :AM,
-            :N0 => 1,
+            :R0 => 3.0,
+            :N0 => 10,
             :Dispersion => :None,
             :NPI => :None,
             :RecoveryRate => :BrittonScience2020,
@@ -1192,17 +1558,21 @@ function InstantaneousContactMatrix(caseopt, A, α)
     d0 = firstday(caseopt[:FirstDay])
     @match caseopt[:Quarantine] begin
         :ManausSchoolClosure => begin
-        A[2] .= A[1] .+ A[2]
+        #A[2] .= A[1] .+ A[2]
         q = get(caseopt, :q, 1.0)
         i0q = get(caseopt,:N0, 1.0)^(1-q)
         (t, i) ->
         begin
             d = searchdate(t, d0)
             i0qα = i0q * α(t)
-            if d < Date("2020-03-16") || d >= Date("2020-08-10")
-                return (i0qα .*  (A[3] * i)) .+ i0q .* (A[2] * i)
+            if d < Date("2020-03-16") || d >= Date("2020-09-01")
+                return (i0qα .*  (A[3] * i)) .+ i0q .* (A[1] * i .+ A[2] * i)
+            elseif d < Date("2020-08-11")
+                return (i0qα .* (A[3] * i)) .+ i0q .* (A[1] * i .+ 0.3 * (A[2] * i))
+            elseif d < Date("2020-08-24")
+                return (i0qα .* (A[3] * i)) .+ i0q .* (A[1] * i .+ 0.5 * (A[2] * i))
             else
-                return (i0qα .* (A[3] * i)) .+ i0q .* (A[1] * i)
+                return (i0qα .* (A[3] * i)) .+ i0q .* (A[1] * i .+ 0.7 * (A[2] * i))
             end
         end
 
@@ -1372,6 +1742,7 @@ function firstday(case)
 end
 
 
+
 """
     function searchsocialdistancing(t, d, d0, αd)
 Returns the value of the social distancing index (essentially, the reduction in R0) for a given day.  `t` is a continuous variable, `d` is a vector of dates for which social distancing indices are available, `d0` is the first day, `αd` is a vector of same length as `d` with the social distancing indices.
@@ -1463,6 +1834,22 @@ function socialdistancing(caseopt)
         #     αd[4] = 1.0 - 1.0 / 1.0
         #     return t -> searchsocialdistancing(t, d, firstday(caseopt[:FirstDay]), αd, :KeepLast)
         # end
+        :PiecewiseLinear => begin
+            d = Date.(caseopt[:NPIdates]) # caseopt[:NPIdates] should be a vector of strings with dates separating each interval
+            β = caseopt[:NPIvalues] # should be a vector with the same length as d. β[i] is the NPI reduction factor at d[i]. Between entries, linear interpolation is used, such that αNPI(d0) = α[i]*(d0-d[i]) + β[i], assuming d[i+1] ≥ d0 ≥ d[i].  α[i] is computed such that αNPI is continuous.
+
+            ti = getproperty.(d .- firstday(caseopt[:FirstDay]), :value) # times at which new segments begin (in days since the first date)
+            α = zeros(length(d)) # The last segment should have zero rate - so the last value of NPI factor given in the table will remain constant afterwards.
+
+            for i in 1:length(d)-1
+                α[i] = (β[i+1]-β[i])/(d[i+1] - d[i]).value
+            end
+            αNPI = t -> begin
+                i = findlast(ti .< t)
+                return i == nothing ? 1.0 : β[i] + α[i] * (t - ti[i])
+            end
+            return αNPI
+        end
         :SPGovRaw   => begin # From https://www.saopaulo.sp.gov.br/coronavirus/isolamento
         # Remember to remove first blank row, if necessary.
             df = read_excel("NPI_Data/IsolamentoGovSP06nov2020.xlsx")

@@ -17,7 +17,9 @@ include("plotresults.jl")
 include("stochasticsimulations.jl")
 ##
 # Configuration of the simulation -- choose one of the sets of parameter choices for your simulation.  Create new codes for new simulations, this way it'll be easy to reproduce simulations for a paper.
-Simulation = :Manaus_Dispersion_SeroRev_NewVar_Discrete
+Simulation = :Manaus_Dispersion_NPI_SeroRev_Discrete
+#:Manaus_NoDispersion_NoAge_NPI_SeroRev_Discrete
+#:Manaus_NoDispersion_NPI_SeroRev_Discrete
 #:SP_Quarantine_LowDispersion_GovSP_Discrete
 #:Manaus_Age_NoNPI_Discrete
 #:ManausHomog_NoNPI_Discrete #:SP_Quarantine_LowDispersion_GovSP_Slow_SeroRev_Discrete
@@ -40,7 +42,7 @@ caseopt = caseoptions(Simulation)
 tspan = (0, 1.5*365)
 
 # Number of different runs (to estimate the probability of an outbreak, or the interval of possible final values)
-Nsim = 10
+Nsim = 100
 
 ## Main program - first, create variable with chosen set of parameters
 
@@ -48,7 +50,11 @@ Nsim = 10
 
 @time s,e,i,t,d,Ninfected,p,OT, Rt = stochasticsimulation(caseopt, tspan, Nsim)
 
-dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmunityTimeConst_$(string(round(1/caseopt[:LossImmRate],digits=2)))_SymmetricSQRT_$(now()))/"
+NewVar = (occursin("NewVariant", String(caseopt[:Model])) ? "_R0var=" * string(caseopt[:R0var]) : "")
+
+LossImmTC = caseopt[:LossImmRate] != :None ? string(round(1 / caseopt[:LossImmRate], digits = 2)) : ""
+
+dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))$(NewVar)_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmunityTimeConst_$(LossImmTC)_SymmetricSQRT_$(now()))/"
 if SAVE
     mkdir(dir)
     # The macro @save has problems with caseopt sometimes.

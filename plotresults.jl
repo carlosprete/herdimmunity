@@ -24,7 +24,7 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
     xticks(rotation=30)
     grid()
     if SAVEPLOT
-        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyTimeConst_$(string(round(1/caseopt[:LossImmRate],digits=2)))_SymmetricSQRT_$(today())Infected.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyTimeConst_$(LossImmTC)_SymmetricSQRT_$(today())Infected.svg")
     end
     fig0 = figure(5)
     clf()
@@ -134,10 +134,14 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
         figure(3), clf()
         d0 = firstday(caseopt[:FirstDay])
         dint = d0 .+ Day.(tspan[1]:tspan[2])
-        PyPlot.plot(dint, 1 .- αd.(tspan[1]:tspan[2]), lw = 3)
-        hweek = PolynomialRatio(fill(1 / 7, 7), [1])
-        socialindexfiltered = filt(hweek, 1 .-  p[:NPI].(tspan[1]:tspan[2]))
-        PyPlot.plot(dint[1:end-3], socialindexfiltered[4:end])
+        if caseopt[:NPI] == :PiecewiseLinear
+            PyPlot.plot(dint, αd.(tspan[1]:tspan[2]), lw = 3)
+        else
+            PyPlot.plot(dint, 1 .- αd.(tspan[1]:tspan[2]), lw = 3)
+            hweek = PolynomialRatio(fill(1 / 7, 7), [1])
+            socialindexfiltered = filt(hweek, 1 .-  p[:NPI].(tspan[1]:tspan[2]))
+            PyPlot.plot(dint[1:end-3], socialindexfiltered[4:end])
+        end
 
         PyPlot.xlabel("Date")
         PyPlot.title("Social distancing index")
