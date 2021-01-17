@@ -18,22 +18,14 @@ I-->R(R)
 
    The base of all the implemented continuous-time, deterministic models is the SEIR model defined by the equations
    $$
-   \frac{d S}{dt} = -\beta \frac{IS}{N},
+   \frac{d S}{dt} = -\beta \frac{IS}{N},\\
+   \frac{dE}{dt} = \beta\frac{IS}{N} - \sigma E,\\
+\frac{d I}{dt} = \sigma E - \mu I,\\
+   \frac{dR}{dt} = \mu I.
    $$
+   
 
-   $$
-   \frac{dE}{dt} = \beta\frac{IS}{N} - \sigma E
-   $$
-
-   $$
-   \frac{d I}{dt} = \sigma E - \mu I,
-   $$
-
-   $$
-   \frac{dR}{dt} = \mu I,
-   $$
-
-   where $S(t)$ is the number of susceptible people at time $t$, $E$ is the number of exposed people (that have contracted the disease, but are not yet contagious), $I$ is the number of infected people (that are contagious), and $R$ is the number of recovered or dead.  Parameter $\beta$ is the contact rate, that is, the rate at which an infected person infects susceptibles, $\sigma$ is the incubation rate ($\tau_\sigma = 1/\sigma$ is the average incubation time), $\mu$ is the recovery rate ($\tau_\mu = 1/\mu$ is the average recovery time).
+where $S(t)$ is the number of susceptible people at time $t$, $E$ is the number of exposed people (that have contracted the disease, but are not yet contagious), $I$ is the number of infected people (that are contagious), and $R$ is the number of recovered or dead.  Parameter $\beta$ is the contact rate, that is, the rate at which an infected person infects susceptibles, $\sigma$ is the incubation rate ($\tau_\sigma = 1/\sigma$ is the average incubation time), $\mu$ is the recovery rate ($\tau_\mu = 1/\mu$ is the average recovery time).
 
 2. Discrete-time stochastic SEIR[^Lekone2006]
 
@@ -43,7 +35,9 @@ I-->R(R)
    I(t+\Delta t) = I(t) + \Delta E - \Delta I,\\
    R(t + \Delta t) = R(t) + \Delta I,
    $$
-   where $\Delta t$ is the step size for the simulation, and the increments $\Delta S$, $\Delta E$ and $\Delta I$ follow binomial distributions  $\Delta S\sim \text{Bin}(S(t), p_{\text{exp}}$, $\Delta E \sim \text{Bin}(E(t), p_{\text{inc}})$, $\Delta I(t) \sim \text{Bin}(I(t), p_{\text{rec}})$ with exposure, incubation and recovery probabilities given by
+   where $\Delta t$ is the step size for the simulation, and the increments $\Delta S$, $\Delta E$ and $\Delta I$ follow binomial distributions 
+   
+    $\Delta S\sim \text{Bin}(S(t), p_{\text{exp}})$, $\Delta E \sim \text{Bin}(E(t), p_{\text{inc}})$, $\Delta I(t) \sim \text{Bin}(I(t), p_{\text{rec}})$ with exposure, incubation and recovery probabilities given by
    $$
    p_{\text{exp}} = 1 - e^{-\frac{\beta(t)}{N}\Delta t I(t)},\\
    p_{\text{inc}} = 1 - e^{-\sigma\Delta t},\\
@@ -59,7 +53,7 @@ Several features were added to these basic models:
 
 2. The division of each compartment, $S$, $E$, $I$, $R$, into several subcompartments  each for a different age group (so that $S$, $E$, $I$ and $R$ are now vectors with dimensions equal to the number of age groups).  The interactions between age groups is described by a contact matrix $A$, such that
    $$
-   \frac{dS}{dt} = - A^T I \frac{S}{N}
+   \frac{dS}{dt} = - A^T I \odot \frac{S}{N}
    $$
    for the continuous model.  For the discrete model, the exporsure probability now depends on the age compartments, and becomes vector such that
    $$
@@ -89,9 +83,36 @@ Several features were added to these basic models:
 
    
 
-5. A fractal model adapting [^Abbasi2020] was also included, changing the update equations to
+5. Entry of a second virus strain after a certain date. The second strain may (or not) partially evade immunity conferred by the first strain.
+   
+   ```mermaid
+   graph LR
+   
+   S(S) --> E(E)
+   E --> I(I)
+   I --> |1-p0| Rsp(Rsp)
+   I --> |p0| Rl(Rl)
+   Rl --> Sr(Sr)
+   Sr --> Evar
+   S --> Evar
+   Evar --> Ivar(Ivar)
+   Ivar --> Rsp
+   ```
+   
    $$
-   \frac{dS}{dt} = - A^T I(0)^{1-q}I(t)^q \frac{S}{N},
+   \frac{d S}{dt} = -A^TI \odot \frac{S}{N},\\
+   \frac{dE}{dt} = A^TI \odot\frac{S}{N} - \sigma E,\\
+   \frac{d I}{dt} = \sigma E - \mu I,\\
+   \frac{dR_{sp}}{dt} = (1-p_0)\mu I + \mu I_{var},\\
+   \frac{dR_L}{dt} = p_0\mu I - a_R R_L,\\
+   \frac{dS_r}{dt} = a_R R_L - f A^T I_{var}\odot\frac{S_r}{N},\\
+   \frac{dE_{var}}{dt} = fA^TI_{var}\odot\frac{S_r}{N}-\sigma E_{var},\\
+   \frac{dI_{var}}{dt} = \sigma E_{var}-\mu I_{var}.
+   $$
+   
+6. A fractal model adapting [^Abbasi2020] was also included, changing the update equations to
+   $$
+   \frac{dS}{dt} = - A^T I(0)^{1-q}I(t)^q \odot\frac{S}{N},
    $$
    where $q$ is a parameter associated to Tsallis statistics.  The discrete-time model was similarly modified.
 
@@ -137,6 +158,8 @@ The choices for `:Model` are:
 * `:SeroRevContinuous`: as before, but with the possibility of seroreversion and loss of immunity.
 * `:SEIRDiscrete`: stochastic, discrete-time model including the possibility of age structure and different activity levels.
 * `:SEIRSeroRevDiscrete`: as above, but with the possibility of seroreversion and loss of immunity.
+* :SEIRNewVariantDiscrete: discrete model with two strains, immunity against first strain protects also against second strain.
+* :SEIRSeroRevNewVariantDiscrete: as above, but immunity against first strain may stop protecting against second strain after a while.
 
 The model is chosen by calling function `model`:
 
@@ -153,7 +176,7 @@ The dictionary `p` contains information about the simulation computed from the o
 | Entry                                                        | Value                                                        |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
 | `:S`, `:E`, `:I`, `:R` (and in seroreversion models, also `:Sr`, `:Rsp`, `:Rsn`, `:Rl`) | Ranges of indices for each compartment: `p[:S]` are the indices used for the `S`compartment, and so on. |
-| `:ContactMatrix`                                             | Function handle to compute $A(t)^T I(t)$ at each instant.  The function is called as `p[:ContactMatrix](t, i)`, and returns `A(t)'*i`.  Note that if `:q < 1`, the function call is actually `p[:ContactMatrix](t, i.^q)`, and the function returns `I(0).^(1-q) * A(t)' * I(t)^q`. |
+| `:ContactMatrix`                                             | Function handle to compute $A(t)^T I(t)$ at each instant.  The function is called as `p[:ContactMatrix](t, i)`, and returns `A(t)'*i`.  Note that if `:q < 1`, the function call is actually `p[:ContactMatrix](t, i.^q)`, and the function returns `I(0).^(1-q) * A(t)' * I(t).^q`. |
 | `:IncubationRate`                                            | Value of `σ`.                                                |
 | `:RecoveryRate`                                              | Value of `μ`.                                                |
 | `:SeroRevProb`                                               | Value of `ϵ0`.                                               |
