@@ -83,29 +83,34 @@ Several features were added to these basic models:
 
    
 
-5. Entry of a second virus lineage after a certain date. The second strain may (or not) partially evade immunity conferred by the first strain.
+5. Entry of a second virus lineage after a certain date. The second variant may (or not) partially evade immunity conferred by the first variant. Those recovered from infection by the first variant may (or not) lose immunity.
    
    ```mermaid
    graph LR
    
    S(S) --> E(E)
    E --> I(I)
-   I --> |1-p0| Rsp(Rsp)
+   I --> |1-p0-p1| Rsp(Rsp)
+   I --> |p1| Rvar(Rvar)
    I --> |p0| Rl(Rl)
+   Rvar --> Svar(Svar)
    Rl --> Sr(Sr)
-   Sr --> Evar
+   Sr --> E
    S --> Evar
+   Sr --> Evar
+   Svar --> Evar
    Evar --> Ivar(Ivar)
    Ivar --> Rsp
    ```
    
    $$
    \frac{d S}{dt} = -A^TI \odot \frac{S}{N},\\
-   \frac{dE}{dt} = A^TI \odot\frac{S}{N} - \sigma E,\\
+   \frac{dE}{dt} = A^TI \odot\frac{S+S_r}{N} - \sigma E,\\
    \frac{d I}{dt} = \sigma E - \mu I,\\
-   \frac{dR_{sp}}{dt} = (1-p_0)\mu I + \mu I_{var},\\
+   \frac{dR_{sp}}{dt} = (1-p_0-p_1)\mu I + \mu I_{var},\\
    \frac{dR_L}{dt} = p_0\mu I - a_R R_L,\\
-   \frac{dS_r}{dt} = a_R R_L - f A^T I_{var}\odot\frac{S_r}{N},\\
+   \frac{dR_{var}}{dt} = p_1 \mu I - a_{R1} R_{var},\\
+   \frac{dS_r}{dt} = a_{R1} R_{var} - A^T I\odot\frac{S_r}{N} - f A^T I_{var}\odot\frac{S_r}{N},\\
    \frac{dE_{var}}{dt} = fA^TI_{var}\odot\frac{S_r}{N}-\sigma E_{var},\\
    \frac{dI_{var}}{dt} = \sigma E_{var}-\mu I_{var}.
    $$
@@ -158,8 +163,8 @@ The choices for `:Model` are:
 * `:SeroRevContinuous`: as before, but with the possibility of seroreversion and loss of immunity.
 * `:SEIRDiscrete`: stochastic, discrete-time model including the possibility of age structure and different activity levels.
 * `:SEIRSeroRevDiscrete`: as above, but with the possibility of seroreversion and loss of immunity.
-* :SEIRNewVariantDiscrete: discrete model with two strains, immunity against first strain protects also against second strain.
-* :SEIRSeroRevNewVariantDiscrete: as above, but immunity against first strain may stop protecting against second strain after a while.
+* `:SEIRNewVariantDiscrete`: discrete model with two variants, immunity against first variant protects also against second variant.
+* `:SEIRSeroRevNewVariantDiscrete`: as above, but immunity against first variant may stop protecting against second variant after a while.  Immunity against the first variant may also wane gradually.
 
 The model is chosen by calling function `model`:
 
@@ -175,14 +180,22 @@ The dictionary `p` contains information about the simulation computed from the o
 
 | Entry                                                        | Value                                                        |
 | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| `:S`, `:E`, `:I`, `:R` (and in seroreversion models, also `:Sr`, `:Rsp`, `:Rsn`, `:Rl`) | Ranges of indices for each compartment: `p[:S]` are the indices used for the `S`compartment, and so on. |
+| `:S`, `:E`, `:I`, `:R` (and in seroreversion and multi-variant models, also `:Sr`, `:Rsp`, `:Rsn`, `:Rl`, `:Svar`, `:Evar`, `:Ivar`, `:Rvar`) | Ranges of indices for each compartment: `p[:S]` are the indices used for the `S`compartment, and so on. |
 | `:ContactMatrix`                                             | Function handle to compute $A(t)^T I(t)$ at each instant.  The function is called as `p[:ContactMatrix](t, i)`, and returns `A(t)'*i`.  Note that if `:q < 1`, the function call is actually `p[:ContactMatrix](t, i.^q)`, and the function returns `I(0).^(1-q) * A(t)' * I(t).^q`. |
+| `:Population`                                                | Total population for the simulation                          |
 | `:IncubationRate`                                            | Value of `σ`.                                                |
 | `:RecoveryRate`                                              | Value of `μ`.                                                |
 | `:SeroRevProb`                                               | Value of `ϵ0`.                                               |
 | `:LossImmProb`                                               | Value of `p0.`                                               |
 | `:LossImmRate`                                               | Value of `ar`.                                               |
 | `:NPI`                                                       | Handle to function that returns a factor `α(t)` that is multiplied to the contact matrix at time `t` to account for NPI measures. |
+| `:LossImmProbVar`                                            | Value of `p1`                                                |
+| `:LossImmRateVar`                                            | Value of `ar1`                                               |
+| `:TimeIntroduction`                                          | Time in which the new variant appears (in days after the beginning of the simulation) |
+| `:N0var`                                                     | Number of cases of new variant at `p[:TimeIntroduction]`     |
+| `:R0fac`                                                     | The reproduction number of the second variant is `p[:R0fac]*R0`, where `R0` is the reproduction number for the first variant |
+| `:PopDistribution`                                           | Vector describing the distribution of the population among each age range (must add up to 1.0) |
+| `:StepSize`                                                  | Time step used in the simulation (in days)                   |
 
 ## Running a model
 
