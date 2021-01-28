@@ -24,7 +24,7 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
     xticks(rotation=30)
     grid()
     if SAVEPLOT
-        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyTimeConst_$(LossImmTC)_SymmetricSQRT_$(today())Infected.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(get(caseopt,:LossImmProb,:None)))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_Infected.svg")
     end
     fig0 = figure(5)
     clf()
@@ -48,8 +48,18 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
         ax6.set_xlabel("Date")
         ax6.set_ylabel(L"R_t")
         grid(true)
-        PyPlot.title("Replacement number")
+        PyPlot.title("Average replacement number")
         xticks(rotation=30)
+        if occursin("NewVariant", String(caseopt[:Model]))
+            fig7 = figure(7)
+            clf()
+            ax7 = subplot(111)
+            ax7.set_xlabel("Date")
+            ax7.set_ylabel(L"R_t")
+            grid(true)
+            PyPlot.title("Weigthed replacement number for each variant")
+            xticks(rotation = 30)
+        end
     end
     fig = figure(2)
     clf()
@@ -81,7 +91,14 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
         if ComputeRt
             if occursin("NewVariant", String(caseopt[:Model]))
                 #ax6.plot(d, Rt[sim][:,1])
-                ax6.plot(d, Rt[sim][:,2].+Rt[sim][:,3])
+                ax6.plot(d, Rt[sim][:,3] + Rt[sim][:,4])
+                if sim == 1
+                    ax7.plot(d, Rt[sim][:,3], label = "1st variant")
+                    ax7.plot(d, Rt[sim][:,4], "--", label = "2nd variant")
+                else
+                    ax7.plot(d, Rt[sim][:,3])
+                    ax7.plot(d, Rt[sim][:,4], "--")
+                end
             else
                 ax6.plot(d, Rt[sim])
             end
@@ -120,12 +137,17 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
     grid(true)
     if SAVEPLOT
         figure(2)
-        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Cummulative.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(get(caseopt,:LossImmProb,:None)))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_Cummulative.svg")
         figure(5)
-        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Infected_Cummulative.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(get(caseopt,:LossImmProb,:None)))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_Infected_Cummulative.svg")
         if ComputeRt
+            if occursin("NewVariant", String(caseopt[:Model]))
+                ax7.legend()
+            end
             figure(6)
-            savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Rt.svg")
+            savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(get(caseopt,:LossImmProb,:None)))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_Rt.svg")
+            figure(7)
+            savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(get(caseopt,:LossImmProb,:None)))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_separateRt.svg")
         end
     end
     #legend(loc = "best")
@@ -147,7 +169,7 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
         PyPlot.title("Social distancing index")
         xticks(rotation=30)
         if SAVEPLOT
-            savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())SocialDistancing.svg")
+            savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(get(caseopt,:LossImmProb,:None)))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_SocialDistancing.svg")
         end
     end
 
@@ -157,7 +179,7 @@ function plotresults(dir, Simulation, caseopt, s, i, d, Rt,  Ninfected, PlotSoci
     PyPlot.title("Number of cases in $Nsim simulations")
     show()
     if SAVEPLOT
-        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmuntyRate_$(string(caseopt[:LossImmRate]))_SymmetricSQRT_$(today())Distribution.svg")
+        savefig(dir*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$(string(get(caseopt,:NPIprediction,"")))_LossImmunityProb_$(string(get(caseopt,:LossImmProb,:None)))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_Distribution.svg")
     end
 end
 if PLOTtxt
