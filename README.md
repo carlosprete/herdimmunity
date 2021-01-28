@@ -83,7 +83,7 @@ Several features were added to these basic models:
 
    
 
-5. Entry of a second virus strain after a certain date. The second strain may (or not) partially evade immunity conferred by the first strain.
+5. Entry of a second virus lineage after a certain date. The second strain may (or not) partially evade immunity conferred by the first strain.
    
    ```mermaid
    graph LR

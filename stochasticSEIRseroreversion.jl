@@ -7,6 +7,8 @@ SAVEPLOT = true
 TextPlot = false
 PLOTtxt = false
 ComputeRt = true
+# P1 -> 11/26/2020
+# P2 -> June 2020
 
 if PLOTtxt
     using UnicodePlots
@@ -17,7 +19,8 @@ include("plotresults.jl")
 include("stochasticsimulations.jl")
 ##
 # Configuration of the simulation -- choose one of the sets of parameter choices for your simulation.  Create new codes for new simulations, this way it'll be easy to reproduce simulations for a paper.
-Simulation = :Manaus_Dispersion_NPI_SeroRev_Discrete
+Simulation = :Manaus_Dispersion_NPI_SeroRev_NewVar_Discrete
+#:Manaus_Dispersion_NPI_SeroRev_Discrete
 #:Manaus_NoDispersion_NoAge_NPI_SeroRev_Discrete
 #:Manaus_NoDispersion_NPI_SeroRev_Discrete
 #:SP_Quarantine_LowDispersion_GovSP_Discrete
@@ -45,16 +48,21 @@ tspan = (0, 1.5*365)
 Nsim = 100
 
 ## Main program - first, create variable with chosen set of parameters
-
-
-
-@time s,e,i,t,d,Ninfected,p,OT, Rt = stochasticsimulation(caseopt, tspan, Nsim)
-
 NewVar = (occursin("NewVariant", String(caseopt[:Model])) ? "_R0var=" * string(caseopt[:R0var]) : "")
 
-LossImmTC = caseopt[:LossImmRate] != :None ? string(round(1 / caseopt[:LossImmRate], digits = 2)) : ""
+LossImmTC = get(caseopt,:LossImmRate,:None) != :None ? string(round(1 / caseopt[:LossImmRate], digits = 2)) : ""
+LossImmTCVar = get(caseopt,:LossImmRateVar,:None) != :None ? string(round(1 / caseopt[:LossImmRateVar], digits = 2)) : ""
+dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))$(NewVar)_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmunityTimeConst_$(LossImmTC)_LossImmunityProbVar_$(string(get(caseopt,:LossImmProbVar,:None)))_LossImmunityTimeConstVar_$(LossImmTCVar)_SymmetricSQRT_$(now()))/"
+println(dir)
 
-dir = "Results/"*string(Simulation)*"_Nsim=$(Nsim)_N0=$(get(caseopt,:N0,1))_Dispersion_$(dispersion_factor(caseopt[:Dispersion]))_$(string(get(caseopt,:Quarantine,"")))_$(caseopt[:NPI]== :None ? "" : "NPI_")$((get(caseopt,:NPIprediction,"")))$(NewVar)_LossImmunityProb_$(string(caseopt[:LossImmProb]))_LossImmunityTimeConst_$(LossImmTC)_SymmetricSQRT_$(now()))/"
+if ComputeRt
+    @time s,e,i,t,d,Ninfected,p,OT, Rt = stochasticsimulation(caseopt, tspan, Nsim)
+else
+    @time s,e,i,t,d,Ninfected,p,OT = stochasticsimulation(caseopt, tspan, Nsim)
+    Rt = "Not computed"
+end
+
+
 if SAVE
     mkdir(dir)
     # The macro @save has problems with caseopt sometimes.

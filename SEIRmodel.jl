@@ -35,34 +35,45 @@ function ReplacementNumber(t, u, p, model)
             end
         end
         :SEIRNewVariantDiscrete => begin
-            Rt = zeros(N,3) # Saves true Rt (max), and weighted Rt for each variant (using corresponding fraction of infected as weights)
+            Rt = zeros(N,4)
+            # Rt[:, 1]: first variant only
+            # Rt[:, 2]: second variant only
+            # overall Rt: max(Rt[:, 1], Rt[:, 2])
+            # Rt[:, 3]: weighted first variant Rt (as would be measured)
+            # Rt[:, 4]: weighted second variant Rt
+            # What would be measured is Rt[:,3]+Rt[:,4]
             TimeIntroduction = p[:TimeIntroduction]
             γR0 = p[:R0fac]
             for n in 1:N
                 i = sum(u[n][p[:I]])
                 ivar = sum(u[n][p[:Ivar]])
                 diags = diagm(sqrt.(u[n][p[:S]]/pop))
-                R = eigmax(Symmetric(diags * ATi(t[n], diags))) / μ
-                Rt[n, 1] = max(R, t[n] >= TimeIntroduction ? γR0 * R : 0.0)
-                Rt[n, 2] = R * i / (i + ivar)
-                Rt[n, 3] = (t[n] ≥ TimeIntroduction ? γR0 * R * ivar / (i + ivar) : 0.0)
+                Rt[n, 1] = eigmax(Symmetric(diags * ATi(t[n], diags))) / μ
+                Rt[n, 2] = t[n] ≥ TimeIntroduction ? γR0 * Rt[n, 1] : 0.0
+                Rt[n, 3] = (i + ivar > 0) ? Rt[n, 1] * i / (i + ivar) : 0.0
+                Rt[n, 4] = (i + ivar > 0) ? Rt[n, 2] * ivar / (i + ivar) : 0.0
             end
         end
         :SEIRSeroRevNewVariantDiscrete => begin
-            Rt = zeros(N, 3)
+            Rt = zeros(N, 4)
+            # Rt[:, 1]: first variant only
+            # Rt[:, 2]: second variant only
+            # overall Rt: max(Rt[:, 1], Rt[:, 2])
+            # Rt[:, 3]: weighted first variant Rt (as would be measured)
+            # Rt[:, 4]: weighted second variant Rt
+            # What would be measured is Rt[:,3]+Rt[:,4]
             TimeIntroduction = p[:TimeIntroduction]
             γR0 = p[:R0fac]
             for n in 1:N
                 i = sum(u[n][p[:I]])
                 ivar = sum(u[n][p[:Ivar]])
-                diags = diagm(sqrt.(u[n][p[:S]] / pop))
-                Rt[n, 1] = Rt[n, 2] = eigmax(Symmetric(diags * ATi(t[n], diags))) / μ
-                Rt[n, 2] *= (i + ivar == 0) ? 0.0 : i / (i + ivar)
+                diags = diagm(sqrt.((u[n][p[:S]] .+ u[n][p[:Sr]]) ./ pop))
+                Rt[n, 1] = eigmax(Symmetric(diags * ATi(t[n], diags))) / μ
+                Rt[n, 3] = (i + ivar == 0) ? 0.0 : (i / (i + ivar)) * Rt[n, 1]
                 if t[n] ≥ TimeIntroduction
-                    diags .= diagm(sqrt.((u[n][p[:S]].+u[n][p[:Sr]])/pop))
-                    Rt[n, 3] = γR0 * eigmax(Symmetric(diags * ATi(t[n], diags))) / μ
-                    Rt[n, 1] = max(Rt[n, 1], Rt[n, 3])
-                    Rt[n, 3] *= (i + ivar == 0) ? 0.0 : ivar / (i + ivar)
+                    diags .= diagm(sqrt.((u[n][p[:S]] .+ u[n][p[:Sr]] .+ u[n][p[:Svar]]) ./ pop))
+                    Rt[n, 2] = γR0 * eigmax(Symmetric(diags * ATi(t[n], diags))) / μ
+                    Rt[n, 4] = (i + ivar == 0) ? 0.0 : (ivar / (i + ivar)) * Rt[n, 2]
                 end
             end
         end
@@ -82,34 +93,9 @@ function caseoptions(Simulation)
             Dict(:Model =>
             :SEIRSeroRevDiscrete,
             :Quarantine => :None,
-            :LossImmRate => 1 / 180,
+            :LossImmRate => 1 / 361,
             :SeroRevProb => 1.0,
             :LossImmProb => 0.5,
-            :Population => :Manaus,
-            :FirstDay => :Manaus,
-            :N0 => 10,
-            :R0 => 3.0,
-            :NPI => :PiecewiseLinear,
-            :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
-            :NPIvalues => [1.0, 1.0, 0.5, 0.9, 1.0, 1.0, 1.0],
-            :RecoveryRate => :BrittonScience2020,
-            :IncubationRate => :BrittonScience2020,
-            :AgeStructure => :None,
-            :ContactMatrix => :None,
-            :ActivityVector => :None,
-            :ActivityStructure => :None,
-            :Dispersion => :None,
-            :InitCond => :Discrete,
-            :StepSize => :QuarterDay)
-        end
-
-        :Manaus_NoDispersion_NoAge_NPI_SeroRev_Discrete => begin
-            Dict(:Model =>
-            :SEIRSeroRevDiscrete,
-            :Quarantine => :None,
-            :LossImmRate => 1 / 240,
-            :SeroRevProb => 1.0,
-            :LossImmProb => 1.0,
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,
@@ -191,7 +177,7 @@ function caseoptions(Simulation)
             :N0 => 10,
             :R0 => 3.0,
             :DateIntroduction => "2020-07-15",
-            :R0var => 10.0,
+            :R0var => 6.0,
             :N0var => 1,
             :NPI => :PiecewiseLinear,
             :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
@@ -210,14 +196,16 @@ function caseoptions(Simulation)
             Dict(:Model =>
             :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :None,
-            :LossImmRate => 1 / 139.04,
-            :SeroRevProb => :None,
+            :LossImmRate => 1 / 117.84,
+            :SeroRevProb => 1,
             :LossImmProb => 0.5,
+            :LossImmProbVar => 0.5,
+            :LossImmRateVar => 1 / 84,
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,
             :R0 => 3.0,
-            :DateIntroduction => "2020-07-15",
+            :DateIntroduction => "2020-11-26", #"2020-07-15",
             :R0var => 3.0,
             :N0var => 1,
             :NPI => :PiecewiseLinear,
@@ -375,8 +363,8 @@ function caseoptions(Simulation)
             :FirstDay => :Manaus,
             :N0 => 10,
             :R0 => 3.0,
-            :DateIntroduction => "2020-07-15",
-            :R0var => 5.0,
+            :DateIntroduction => "2020-11-26",
+            :R0var => 10.0,
             :N0var => 1,
             :NPI => :PiecewiseLinear,
             :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
@@ -396,9 +384,11 @@ function caseoptions(Simulation)
             Dict(:Model =>
             :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :None,
-            :LossImmRate => 1 / 30,
+            :LossImmRate => :None,
+            :LossImmRateVar => 1 / 120,
             :SeroRevProb => :None,
-            :LossImmProb => 0.3,
+            :LossImmProb => 0.0,
+            :LossImmProbVar => 0.5,
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,
@@ -406,25 +396,27 @@ function caseoptions(Simulation)
             :DateIntroduction => "2020-07-15",
             :R0var => 3.0,
             :N0var => 1,
-            :NPI => :None,
+            :NPI => :None, #:PiecewiseLinear,
             :NPIdates => ["2020-03-13", "2020-03-22", "2020-06-01", "2020-09-01", "2021-01-01", "2021-01-02", "2021-01-16"],
-            :NPIvalues => [1.0, 0.9, 0.5, 0.9, 1.0, 1.0, 1.0],
+            :NPIvalues => [1.0, 0.9, 0.7, 0.9, 1.0, 1.0, 1.0],
             :RecoveryRate => :BrittonScience2020,
             :IncubationRate => :BrittonScience2020,
             :AgeStructure => :Manaus75,
             :ContactMatrix => :BrazilSeparate,
             :ActivityVector => :Superspreaders,
             :ActivityStructure => :Superspreaders,
-            :Dispersion => 10.0,
+            :Dispersion => 2.0,
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
         :Manaus_Quarantine_NPI_Dispersion_SchoolClosure_SeroRev_NewVar_Discrete => begin
             Dict(:Model => :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :ManausSchoolClosure,
-            :LossImmRate => 1 / 60,
+            :LossImmRate => 0.0,
+            :LossImmRateVar => 1 / 60,
             :SeroRevProb => :None,
             :LossImmProb => 0.0,
+            :LossImmProbVar => 0.0,
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,
@@ -449,9 +441,11 @@ function caseoptions(Simulation)
         :Manaus_Quarantine_Dispersion_SchoolClosure_SeroRev_NewVar_Discrete => begin
             Dict(:Model => :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :ManausSchoolClosure,
-            :LossImmRate => 1 / 30,
+            :LossImmRate => 0.0,
+            :LossImmRateVWar => 1 / 30,
             :SeroRevProb => :None,
-            :LossImmProb => 0.5,
+            :LossImmProb => 0.0,
+            :LossImmProbVar => 0.5,
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,
@@ -480,7 +474,7 @@ function caseoptions(Simulation)
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,
-            :R0 => 1.01,
+            :R0 => 3.0,
             :NPI => :None,
             :NPIprediction => :Baseline,
             :RecoveryRate => :BrittonScience2020,
@@ -489,7 +483,7 @@ function caseoptions(Simulation)
             :ContactMatrix => :BrazilSeparate,
             :ActivityVector => :Superspreaders,
             :ActivityStructure => :Superspreaders,
-            :Dispersion => 20.0,
+            :Dispersion => 0.3,
             :InitCond => :Discrete,
             :StepSize => :QuarterDay)
         end
@@ -497,9 +491,11 @@ function caseoptions(Simulation)
         :Manaus_Dispersion_SeroRev_NewVar_Discrete => begin
             Dict(:Model => :SEIRSeroRevNewVariantDiscrete,
             :Quarantine => :None,
-            :LossImmRate => 1 / 120,
+            :LossImmRate => 0.0,
+            :LossImmRateVar => 1 / 120,
             :SeroRevProb => :None,
-            :LossImmProb => 0.8,
+            :LossImmProb => 0.0,
+            :LossImmProbVar => 0.8,
             :Population => :Manaus,
             :FirstDay => :Manaus,
             :N0 => 10,
@@ -2307,8 +2303,8 @@ function indices(caseopt, πvec)
             3 # S-Srecovered-E-I-Rseropositive-Rseroneg-Rloss (Srecovered - susceptible that was infected at least once, Rloss - Recovered that will lose immunity)
         end
         :SEIRSeroRevNewVariantDiscrete => begin
-            compnames = (:S, :Sr, :E, :Evar, :I, :Ivar, :Rsp, :Rl)
-            4 # As above, but also for variant
+            compnames = (:S, :Sr, :Svar, :E, :Evar, :I, :Ivar, :Rsp, :Rl, :Rvar)
+            6 # As above, but also for variant
         end
     end
 
@@ -2550,13 +2546,30 @@ function model(caseopt)
             pop = totalpopulation(caseopt[:Population])
             A,πv = NormalizedContactMatrix(caseopt)
             funcA = InstantaneousContactMatrix(caseopt, A, α)
-            ar = lossofimmunityrate(caseopt[:LossImmRate])
-            p0 = lossofimmunityprobability(caseopt[:LossImmProb]) # Probability that a recovered from the first variant will be susceptible to the second variant
+            ar = lossofimmunityrate(caseopt[:LossImmRate]) # rate at which a recovered from the first variant will lose immunity against the first variant
+            p0 = lossofimmunityprobability(caseopt[:LossImmProb]) # Probability that a recovered from the first variant will be susceptible again
+            ar1 = lossofimmunityrate(caseopt[:LossImmRateVar]) # rate at which a recovered from the first variant will lose immunity against the second variant
+            p1 = lossofimmunityprobability(caseopt[:LossImmProbVar]) # probability that a recovered from the first variant will eventually lose immunity against the second variant
+            if p0 < 0
+                p0 = 0.0
+                println("Loss of immunity probability is negative - setting to 0.")
+            end
+            if p1 < 0
+                p1 = 0.0
+                println("Probability of immunity loss against second variant negative - setting to 0.")
+            end
+            if (p0 + p1 > 1)
+                println("The probabilities of loss of immunity against each variant add up to a value larger than one.  Normalizing them by their sum.")
+                sump = p0 + p1
+                p0 = p0 / sump
+                p1 = p1 / sump
+            end
+
             Indices = indices(caseopt,πv)
             u0 = initcond(caseopt, πv, Indices[:S], Indices[:E])
             DateIntroduction,R0var,N0var = NewVariantData(caseopt)
             tIntroduction = (DateIntroduction - firstday(caseopt[:FirstDay])).value # time of introduction of new variant, counted in days after init of simulation
-            p = merge(Indices, Dict(:ContactMatrix => funcA, :IncubationRate => σ, :RecoveryRate => μ,  :LossImmProb => p0, :LossImmRate => ar, :Population => pop, :StepSize => Δt, :NPI => α, :TimeIntroduction => tIntroduction, :R0fac => R0var / Rzero(caseopt[:R0]), :N0var => N0var, :PopDistribution => πv, :IndexNames => keys(Indices)))
+            p = merge(Indices, Dict(:ContactMatrix => funcA, :IncubationRate => σ, :RecoveryRate => μ,  :LossImmProb => p0, :LossImmRate => ar, :LossImmProbVar => p1, :LossImmRateVar => ar1, :Population => pop, :StepSize => Δt, :NPI => α, :TimeIntroduction => tIntroduction, :R0fac => R0var / Rzero(caseopt[:R0]), :N0var => N0var, :PopDistribution => πv, :IndexNames => keys(Indices)))
 
             return discretestochasticSEIRSeroRevNewVariant!,πv,A,p,u0
         end

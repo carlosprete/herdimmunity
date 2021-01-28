@@ -9,15 +9,19 @@ function discretestochasticSEIRSeroRevNewVariant!(upost, upre, p, t)
     eind = p[:E]
     iind = p[:I]
     rspind = p[:Rsp]     # fraction of R that does not serorevert
-    rlsind = p[:Rl]     # fraction of R that loses immunity only to new variant
-    srind = p[:Sr]       # fraction of S that was infected by variant 0, but is not immune to variant 1
+    rlsind = p[:Rl]     # fraction of R that loses immunity against first variant
+    rvarind = p[:Rvar] # fraction of R that loses immunity only to new variant
+    srind = p[:Sr]       # fraction of S that was infected by one of the variants, but lost immunity to both
+    svarind = p[:Svar] # fraction of S that was infected by variant 0, but is not immune to variant 1
     evarind = p[:Evar]
     ivarind = p[:Ivar]
     ATi = p[:ContactMatrix]        # Mixing matrix
     σ = p[:IncubationRate]      # incubation rate (ρ in the paper)
     μ = p[:RecoveryRate]        # recovery rate (γ in the paper)
-    p0 = p[:LossImmProb]        # probability of loss of immunity
-    ar = p[:LossImmRate]        # rate of seroreversion (loss of immunity)
+    p0 = p[:LossImmProb]        # probability of loss of immunity (to both variants)
+    ar = p[:LossImmRate]        # rate of seroreversion (loss of immunity - to both variants)
+    p1 = p[:LossImmProbVar]       # probability of loss of immunity only to second variant
+    ar1 = p[:LossImmRateVar]    # rate of immunity loss only against second variant
     N = p[:Population]         # total population
     Δt = p[:StepSize]     # stepsize (in days)
     Δtnorm = -Δt / N
@@ -26,23 +30,37 @@ function discretestochasticSEIRSeroRevNewVariant!(upost, upre, p, t)
     q = get(caseopt, :q, 1.0)
     s = view(upre, sind)
     sr = view(upre, srind)
+    svar = view(upre, svarind)
     e = view(upre, eind)
     i = view(upre, iind)
     rsp = view(upre, rspind)
     rls = view(upre, rlsind)
+    rvar = view(upre, rvarind)
+
     Ai = ATi(t, i.^q)
-    B = rand.(Binomial.(s, 1 .- exp.(Δtnorm.*(Ai))))
+    F = 1 .- exp.(Δtnorm.*(Ai))
+    B = rand.(Binomial.(s, F))
+    Bsr = rand.(Binomial.(sr, F))
     C = rand.(Binomial.(e, 1 - exp(-σ*Δt)))
     D = rand.(Binomial.(i, 1 - exp(-μ*Δt)))
-    F = rand.(Binomial.(rls, 1 - exp(-ar*Δt)))
+    F .= rand.(Binomial.(rls, 1 - exp(-ar*Δt)))
+    G = rand.(Binomial.(rvar, 1- exp(-ar1*Δt)))
 
     upost[sind] = s .- B
-    upost[srind] = sr .+ F # Before introduction of new variant, Sr only increases.
-    upost[eind] = e .+ B .- C
+    upost[srind] = sr .- Bsr .+ F # Before introduction of new variant, Sr decreases only due to first variant
+    upost[svarind] = svar .+ G # Before introduction of new variant, Svar only increases.
+    upost[eind] = e .+ B .+ Bsr .- C
     upost[iind] = i .+ C .- D
-    Dsp = rand.(Binomial.(D, 1-p0))
-    upost[rspind] = rsp .+ Dsp
-    upost[rlsind] = rls .+ D .- Dsp .- F
+    Dsp = zeros(length(D), 3)
+    for ind in eachindex(D)
+        Dsp[ind,:] = rand(Multinomial(D[ind], [p0, p1, 1-p0-p1]))
+        # Dsp[:,1]: part of D that will eventually loose immunity against variants 1 (and 2)
+        # Dsp[:,2]: part of D that will eventually loose immunity against variant 2 only
+        # Dsp[:,3]: part of D that will not loose immunity.
+    end
+    upost[rspind] = rsp .+ Dsp[:, 3]
+    upost[rlsind] = rls .+ Dsp[:, 1] .- F
+    upost[rvarind] = rvar .+ Dsp[:, 2] .- G
 
     # New variant appears at t == TimeIntroduction
     if t == TimeIntroduction
@@ -54,27 +72,26 @@ function discretestochasticSEIRSeroRevNewVariant!(upost, upre, p, t)
            upost[pac] += 1
         end
         upost[sind] .-= upost[evarind]
-    end
-
-
-
-    if t > TimeIntroduction
+    elseif t > TimeIntroduction
         R0fac = p[:R0fac] # (R0 for new variant)/R0
 
         evar = view(upre, evarind)
         ivar = view(upre, ivarind)
         Ai = (R0fac*Δtnorm) .* ATi(t, ivar.^q)
-        B = rand.(Binomial.(sr, 1 .- exp.(Ai)))
+        F .= 1 .- exp.(Ai)
+        B .= rand.(Binomial.(sr, F))
+        C .= rand.(Binomial.(svar, F))
 
-        upost[evarind] .= rand.(Binomial.(upost[sind], 1 .- exp.(Ai)))
+        upost[evarind] .= rand.(Binomial.(upost[sind], F))
         upost[ivarind] .= rand.(Binomial.(evar, 1 - exp(-σ*Δt)))
-        D = rand.(Binomial.(ivar, 1 - exp(-μ*Δt)))
+        D .= rand.(Binomial.(ivar, 1 - exp(-μ*Δt)))
 
         upost[sind] .-= upost[evarind]
         upost[srind] .-= B
-        upost[evarind] .+= evar .+ B .- upost[ivarind]
+        upost[svarind] .-= C
+        upost[evarind] .+= evar .+ B .+ C .- upost[ivarind]
         upost[ivarind] .+= ivar .- D
-        upost[rspind] .+= D # We are assuming here that recovery from the second variant gives immunity
+        upost[rspind] .+= D # We are assuming here that recovery from the second variant gives full immunity
 
     end
 
@@ -83,6 +100,7 @@ function discretestochasticSEIRSeroRevNewVariant!(upost, upre, p, t)
 
     for k = 1:length(upost)
         if upost[k] < 0
+            println("Negative intermediate value!")
             upost[k] = 0
         end
     end
@@ -238,8 +256,10 @@ function discretestochasticSEIRSeroRev!(upost, upre, p, t)
     rsn = view(upre, rsnind)
     rls = view(upre, rlsind)
     Ai = ATi(t, i.^q)
-    B = rand.(Binomial.(s, 1 .- exp.(-(Δt/N).*(Ai))))
-    Bsr = rand.(Binomial.(sr, 1 .- exp.(-(Δt/N).*(Ai))))
+    F = 1 .- exp.(-(Δt/N).*(Ai))
+
+    B = rand.(Binomial.(s, F))
+    Bsr = rand.(Binomial.(sr, F))
     C = rand.(Binomial.(e, 1 - exp(-σ*Δt)))
     D = rand.(Binomial.(i, 1 - exp(-μ*Δt)))
     F = rand.(Binomial.(rls, 1 - exp(-ar*Δt)))
